@@ -1,13 +1,11 @@
 # LinkArchiever
 Simple File/Folders link archive program to ease the process of retrieve files, folders through specific customized tags.
 
-Language:
-[Python](https://www.python.org/)
+* Language: [Python](https://www.python.org/)
+* Uses: [Kivy Framework](https://kivy.org/#home)
+* Compiled release 1.0: [Link](https://1drv.ms/f/s!An-YVdI8vgkrpy-ftIowDqIVjts6) :+1:
 
-Uses:
-[Kivy Framework](https://kivy.org/#home)
-
-
+ 
 ###Usage:
 
     To Save/Update a link with tags:
@@ -23,6 +21,8 @@ Uses:
     4- By clicking "Open" you will be directed to the folder/file
     Note: Tags are not case sensitive, thou you can write
       Capital as well as small letters
+
+
 
 ![](https://github.com/Mohamad1994HD/LinkArchiever/blob/master/1.png)
 ![](https://github.com/Mohamad1994HD/LinkArchiever/blob/master/2.png)
