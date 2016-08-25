@@ -1,0 +1,292 @@
+#: import FadeTransition kivy.uix.screenmanager.FadeTransition
+#: import Screen kivy.uix.screenmanager.Screen
+
+#### File Picker ##########
+<MsgDialog>:
+    id: msg_dialog
+    Label:
+        canvas.before:
+            Color:
+                rgba: 0,1,1,0
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        id: msg_txt
+        text: msg_dialog.msgtext
+        font_size: 30
+
+<DarkGreenBtn@Button>:
+    background_color: .56,.73,.56,1
+
+
+<FilePicker>:
+    id: file_picker
+    orientation: 'vertical'
+    path_text_view: path_text_view  
+    
+    FileChooser:
+        id: fc
+        size_hint: 1, .8
+        path: file_picker.path
+        on_selection: path_text_view.text = str(self.selection[0])
+        dirselect: True
+        FileChooserListLayout
+        FileChooserIconLayout
+    
+    BoxLayout:                  
+        size_hint: 1, .1
+        DarkGreenBtn:
+            size_hint: .15, 1
+            text: 'Select'
+			on_release: root.file_selected(str(fc.selection[0]))
+        Label:
+            id: path_text_view
+            text_size: self.width, None
+            size_hint: .55, 1
+            color: 0,0,0,1
+            unicode_errors: 'ignore'
+            canvas.before:
+                Color:
+                    rgba: 1,1,1,1
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            
+        Button:
+            size_hint: .10, 1
+            text: 'List view'
+            on_release: fc.view_mode = 'list'
+        Button:
+            size_hint: .10, 1
+            text: 'Icon view'
+            on_release: fc.view_mode = 'icon'
+		Button:
+			size_hint: .05, 1
+			text: 'X'
+			on_release: file_picker.on_close()
+
+<VPanel@BoxLayout>:
+    size_hint: .7,1
+    orientation: 'vertical'
+    padding: 10
+
+<NavigationBar@BoxLayout>:
+    size_hint: .1, 1
+    padding: 5
+    orientation: 'vertical'
+    DarkGreenBtn:
+        id: nav_btn_main
+        text: 'Main'
+        on_release: app.root.current= 'search_screen'
+    DarkGreenBtn:
+        id: nav_btn_newURL
+        text: 'New URL'
+        on_release: app.root.current= 'save_screen'
+    DarkGreenBtn:
+        id: nav_btn_help
+        text: 'Help'
+        on_release: app.root.current = 'help_screen'
+    DarkGreenBtn:
+        id: nav_btn_credits
+        text: 'License'
+        on_release: app.root.current = 'license_screen'
+
+<BaseWidget@BoxLayout>:
+    nav_bar_size_hint: .7,1
+    canvas.before:
+        Color:
+            rgba: .56,.93,.56,1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    NavigationBar:
+        size_hint: root.nav_bar_size_hint
+    #VPanel:
+    #    size_hint: .1,1
+        
+
+<CustomListItem>:
+	padding: 5
+	canvas.before:
+		Color:
+			rgba: .56,.73,.56,1
+		Rectangle:
+			size: self.size
+			pos: self.pos
+	canvas.after:
+		Color:
+			rgba: .5,.5,.5,1
+		Line:
+			points: self.x,self.y, self.width,self.y
+			width: 5
+				
+		
+############### HELP SCREEN ##############
+<InstructionsPanel@VPanel>:
+    Label:
+        canvas.before:
+            Color:
+                rgba: 0,.5,.5,1
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        id: label_instructions
+        font_size: 20
+        text: root.inst_text
+        text_size: self.width, None
+
+
+<HelpScreenPanel@VPanel>:
+    InstructionsPanel:
+        size_hint: 1,1
+        id: instruction_panel
+
+############### LICENSE SCREEN #################
+<LicenseScreenPanel@VPanel>:
+    Label:
+        text: 'License Screen'
+        font_size: 100
+
+
+############### SEARCH SCREEN ################
+<SearchBar>:
+    padding: 5
+    search_txt: search_input
+
+    TextInput:
+        id: search_input
+        size_hint: .4, 1
+        font_size: 20
+        on_text: root.commit_search_val()
+	
+	DarkGreenBtn:
+        text: 'Search'
+        size_hint_x: .1
+        font_size: 40
+		on_release: root.btn_srch_clk()
+		
+<ResultBar>:
+    padding: 5
+    canvas.before:
+        Color:
+            rgba: .5,.5,.5,1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+		
+
+<SearchPanel@VPanel>:
+	search_result: search_result_panel
+	canvas.before:
+
+    SearchBar:
+        size_hint: 1, .1
+    ResultBar:
+		id: search_result_panel
+        size_hint: 1, .6
+
+    
+
+        
+############### SAVE SCREEN ###############
+
+<FilePickerBar>:
+	filename_input: save_input
+    padding: 5
+    DarkGreenBtn:
+        text: 'Open'
+        size_hint_x: .1
+        font_size: 40
+		on_release: root.on_open_press()
+
+    TextInput:
+        id: save_input
+        size_hint: .4, 1
+        font_size: 20
+
+<TagBar>:
+	text_input: tags_input
+    padding: 5
+    Label:
+        canvas.before:
+            Color:
+                rgba: .3,.7,.1,.4
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        text: 'TAGS'
+        font_size: 50
+        size_hint_x: .2
+    TextInput:
+		id: tags_input
+        size_hint: .7, 1
+        font_size: 20
+
+<SavePanel@VPanel>:
+    tags: text_input
+	fname: file_input
+	
+    FilePickerBar:
+		id: file_input
+        size_hint: 1, .3
+    TagBar:
+        size_hint: 1, .3
+		id: text_input
+    DarkGreenBtn:
+        text: 'Commit'
+        size_hint: 1, .2
+        font_size: 40
+        on_release: root.btn_save_clk()
+
+
+################Screens Widgets
+<LicenseScreenWidget@BaseWidget>:
+    nav_bar_size_hint: .1,1
+    LicenseScreenPanel:
+        size_hint: .7,1
+
+<HelpScreenWidget@BaseWidget>:
+    nav_bar_size_hint: .1,1
+    HelpScreenPanel:
+        size_hint: .7,1
+
+<SaveScreenWidget@BaseWidget>:    
+    nav_bar_size_hint: .1,1    
+    SavePanel:
+        size_hint: .7,1
+
+<SearchScreenWidget@BaseWidget>:
+    nav_bar_size_hint: .1,1
+    SearchPanel:
+        size_hint: .7,1
+    
+
+################Screens
+
+<LicenseScreen@Screen>:
+    name: 'license_screen'
+    LicenseScreenWidget
+
+<HelpScreen@Screen>:
+    name: 'help_screen'
+    HelpScreenWidget
+
+
+<SaveScreen@Screen>:
+    name: 'save_screen'
+    SaveScreenWidget
+
+<SearchScreen@Screen>:
+    name: 'search_screen'
+    SearchScreenWidget
+
+###############Screen MANAGER    
+
+<ScreenManagement>:
+    transition: FadeTransition()
+    SearchScreen:
+    SaveScreen:
+    HelpScreen:
+    LicenseScreen:

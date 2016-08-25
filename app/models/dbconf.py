@@ -1,0 +1,2 @@
+class dbConfig:
+    path = ''
