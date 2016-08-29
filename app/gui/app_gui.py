@@ -1,9 +1,11 @@
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
 from kivy.uix.screenmanager import Screen
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.popup import Popup
 from kivy.uix.listview import CompositeListItem, ListView
 from kivy.adapters.dictadapter import DictAdapter
+from kivy.utils import platform
 
 callbacks = {
     'search_btn_click': None,
@@ -41,12 +43,15 @@ class FilePicker(BoxLayout):
     def __init__(self, on_close, *args, **kwargs):
         super(FilePicker, self).__init__(*args, **kwargs)
         self.on_close = on_close
+        self.path = kwargs['path']
 
     def file_selected(self, filename):
         callbacks['file_select_btn_click'](data=filename)
 
         self.on_close()
         pass
+
+
 
 
 class CustomListItem(CompositeListItem):
@@ -129,20 +134,55 @@ class SavePanel(VPanel):
         self.fname.filename_input.text = ""
 
 
+# class DriveSelection(DropDown):
+#     pass
+
+def get_win_drives():
+    if platform == 'win':
+        import win32api
+
+        drives = win32api.GetLogicalDriveStrings()
+        drives = drives.split('\000')[:-1]
+
+        return drives
+    else:
+        return []
+
 class FilePickerBar(BoxLayout):
     file_popup = ObjectProperty(None)
     filename_input = ObjectProperty(None)
+    drop_down_btn = ObjectProperty(None)
+    drive_selected = StringProperty('C://')
 
     def __init__(self, *args, **kwargs):
         super(FilePickerBar, self).__init__(*args, **kwargs)
         callbacks['file_select_btn_click'] = self.on_file_picked
+        self.path = ''
+
+    def drop_down_open(self):
+        print "Drop Down open"
+        from kivy.uix.button import Button
+        drivers = get_win_drives()
+        dropdown = DropDown()
+        for driver in drivers:
+            btn = Button(text=driver, size_hint_y=None, height=40)
+            btn.bind(on_release=lambda btn: dropdown.select(btn.text))
+            dropdown.add_widget(btn)
+
+        dropdown.bind(on_select=self.select_root_path)
+        dropdown.open(self.drop_down_btn)
+
+    def select_root_path(self, instance, x):
+        print x
+        self.drive_selected = str(x).replace("\\", "//")
 
     def on_file_picked(self, data):
         self.filename_input.text = data
         # callbacks['file_selected'](data=data)
 
     def on_open_press(self):
-        content = FilePicker(on_close=self.close_popup)
+        # initialize filepicker instance
+        content = FilePicker(on_close=self.close_popup, path=self.drive_selected)
 
         self.file_popup = Popup(title='Select your file',
                                 content=content,

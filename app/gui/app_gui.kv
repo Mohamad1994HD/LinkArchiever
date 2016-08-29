@@ -29,7 +29,8 @@
         id: fc
         size_hint: 1, .8
         path: file_picker.path
-        on_selection: path_text_view.text = str(self.selection[0])
+        on_selection: path_text_view.text = str(self.selection)
+        on_submit: pass
         dirselect: True
         FileChooserListLayout
         FileChooserIconLayout
@@ -191,10 +192,37 @@
 
         
 ############### SAVE SCREEN ###############
+#<DriveSelection>:
 
 <FilePickerBar>:
 	filename_input: save_input
     padding: 5
+    drop_down_btn: drop_down_btn
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint:.1,1
+
+        DarkGreenBtn:
+            id: drop_down_btn
+            text:'Select Drive'
+            size_hint: 1,.4
+            font_size: 20
+            on_release: root.drop_down_open()
+
+        Label:
+            canvas.before:
+                Color:
+                    rgba: .66,.66,.66,.5
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            font_size: 40
+            size_hint: 1, .6
+            text:root.drive_selected
+
+
     DarkGreenBtn:
         text: 'Open'
         size_hint_x: .1
