@@ -3,7 +3,7 @@ Simple File/Folders link archive program to ease the process of retrieve files, 
 
 * Language: [Python](https://www.python.org/)
 * Uses: [Kivy Framework](https://kivy.org/#home)
-* Compiled release 1.0: [Link](https://1drv.ms/f/s!An-YVdI8vgkrpy-ftIowDqIVjts6) :+1:
+* Compiled release 1.0: [Link](https://1drv.ms/u/s!An-YVdI8vgkrpzF0l3PxNL9bIASQ) :+1:
 
  
 ###Usage:
