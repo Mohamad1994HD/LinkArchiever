@@ -139,7 +139,7 @@ class FilePickerBar(BoxLayout):
         self.path = ''
 
     def drop_down_open(self):
-        print "Drop Down open"
+        print "Drop Down is opened"
         from kivy.uix.button import Button
         drivers = drives.get_drives()
         dropdown = DropDown()
