@@ -5,16 +5,11 @@ from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.popup import Popup
 from kivy.uix.listview import CompositeListItem, ListView
 from kivy.adapters.dictadapter import DictAdapter
-from kivy.utils import platform
+import bridge
+import drives
 
-callbacks = {
-    'search_btn_click': None,
-    'save_btn_click': None,
-    'file_select_btn_click': None,
-    'file_selected': None,
-    'on_lst_item_select': None,
-    'on_file_not_found_exception': None,
-    'get_instructions':None
+local_callbacks = {
+    'on_file_selection': None
 }
 
 
@@ -46,12 +41,10 @@ class FilePicker(BoxLayout):
         self.path = kwargs['path']
 
     def file_selected(self, filename):
-        callbacks['file_select_btn_click'](data=filename)
+        local_callbacks['on_file_selection'](data=filename)
 
         self.on_close()
         pass
-
-
 
 
 class CustomListItem(CompositeListItem):
@@ -80,11 +73,8 @@ class InstructionsPanel(VPanel):
 
     def __init__(self, *args, **kwargs):
         super(InstructionsPanel, self).__init__(*args, **kwargs)
-        self.inst_text = self.get_inst_text()
+        self.inst_text = bridge.callbacks[bridge.Callbacks.get_instructions]()
         print self.inst_text
-
-    def get_inst_text(self):
-        return callbacks['get_instructions']()
 
 
 
@@ -121,9 +111,8 @@ class SavePanel(VPanel):
 
         else:
             tags_data = raw_data_tags.replace(" ", "").split(',')
-            response = callbacks['save_btn_click'](data={'tags': tags_data,
-                                                         'file': self.fname.filename_input.text}
-                                                   )
+            response = bridge.callbacks[bridge.Callbacks.on_save_btn_click](data={'tags': tags_data,
+                                                                   'file': self.fname.filename_input.text})
             self.clear_inputs()
 
             msg = response["msg"]
@@ -134,19 +123,9 @@ class SavePanel(VPanel):
         self.fname.filename_input.text = ""
 
 
-# class DriveSelection(DropDown):
-#     pass
 
-def get_win_drives():
-    if platform == 'win':
-        import win32api
 
-        drives = win32api.GetLogicalDriveStrings()
-        drives = drives.split('\000')[:-1]
 
-        return drives
-    else:
-        return []
 
 class FilePickerBar(BoxLayout):
     file_popup = ObjectProperty(None)
@@ -156,13 +135,13 @@ class FilePickerBar(BoxLayout):
 
     def __init__(self, *args, **kwargs):
         super(FilePickerBar, self).__init__(*args, **kwargs)
-        callbacks['file_select_btn_click'] = self.on_file_picked
+        local_callbacks['on_file_selection'] = self.on_file_picked
         self.path = ''
 
     def drop_down_open(self):
         print "Drop Down open"
         from kivy.uix.button import Button
-        drivers = get_win_drives()
+        drivers = drives.get_drives()
         dropdown = DropDown()
         for driver in drivers:
             btn = Button(text=driver, size_hint_y=None, height=40)
@@ -178,7 +157,6 @@ class FilePickerBar(BoxLayout):
 
     def on_file_picked(self, data):
         self.filename_input.text = data
-        # callbacks['file_selected'](data=data)
 
     def on_open_press(self):
         # initialize filepicker instance
@@ -216,8 +194,7 @@ class SearchBar(BoxLayout):
     def btn_srch_clk(self):
         data = self.search_txt.text.replace(" ", "").split(',')
         # print data
-        response = callbacks['search_btn_click'](data=data,
-                                                 backref=callbacks['on_data_ready'])
+        response = bridge.callbacks[bridge.Callbacks.on_search_btn_click](data=data)
         if not response["respond"]:
             msg = response["msg"]
             MsgDialog(msg=msg, size_hint=(.3, .3), title='Operation').launch()
@@ -231,7 +208,7 @@ class SearchBar(BoxLayout):
 class ResultBar(BoxLayout):
     def __init__(self, *args, **kwargs):
         super(ResultBar, self).__init__(*args, **kwargs)
-        callbacks['on_data_ready'] = self.dump_data
+        bridge.callbacks[bridge.Callbacks.on_result_data_ready] = self.dump_data
 
     def dump_data(self, **kwargs):
         from lvargsconv import args_convertor
@@ -255,7 +232,8 @@ class ResultBar(BoxLayout):
         if len(dict_adapter.selection) > 0:
             dialog = MsgDialog(msg="Loading!", size_hint=(.3, .3), title='Operation')
             dialog.launch()
-            response = callbacks['on_lst_item_select'](data=dict_adapter.data[str(dict_adapter.selection[0].index)])
+            response = bridge.callbacks[bridge.Callbacks.on_lst_item_select](
+                data=dict_adapter.data[str(dict_adapter.selection[0].index)])
             dialog.close()
             msg = response["msg"]
             MsgDialog(msg=msg, size_hint=(.3, .3), title='Operation').launch()

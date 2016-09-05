@@ -6,7 +6,7 @@ from models.linkList import get_links_from_tags_lst, LinkList
 from models.dbconf import dbConfig
 import gui
 import os
-
+from gui import bridge
 
 dbConfig.path = appConfig.db_path
 
@@ -19,34 +19,18 @@ class ScreenManagement(ScreenManager):
 
 
 class MyApp(App):
+    title = 'LinkArchiever 1.0'
+    icon = 'icon1.ico'
+
     def build(self):
         return ScreenManagement()
 
 
-# def dir_exist_required(file=None):
-#     def real_dec(f):
-#         def decorator(*args, **kwargs):
-#             data = kwargs['data']
-#             path = file if file else data['name']
-#             if os.path.exists(path):
-#                 try:
-#                     f(*args, **kwargs)
-#                     return {"respond": True,
-#                             "msg": "Success"}
-#                 except:
-#                     return {"respond": False,
-#                             "msg": "Error"}
-#             else:
-#                 return {"respond": False,
-#                         "msg": "Missing File"}
-
-    #     return decorator
-    # return real_dec
-
 def db_file_exist(f):
     def decorator(*args, **kwargs):
+        print "Checking db file existance"
         if os.path.exists(appConfig.db_path):
-            print "Checking DB existence"
+            print "DB File existed"
             f(*args, **kwargs)
             respond = {"respond": True,
                        "msg": "Success"}
@@ -58,13 +42,18 @@ def db_file_exist(f):
 
 
 ####
+def return_result_to_gui(f):
+    def dec(*args, **kwargs):
+        return bridge.callbacks[bridge.Callbacks.on_result_data_ready](data=f(*args, **kwargs))
+    return dec
+
+
 @db_file_exist
-def search_btn_clicked(data=[], backref=None):
-
+@return_result_to_gui
+def search_btn_clicked(data=[]):
     query_res = get_links_from_tags_lst(data)
-    print(query_res)
-
-    backref(data=query_res)
+    # print(query_res)
+    return query_res
 
 
 @db_file_exist
@@ -84,16 +73,16 @@ def search_item_select(data=None):
         response = {"respond":False, "msg":"File doesn't exist anymore"}
     return response
 
+
 def instructions():
     with open(appConfig.instructions_path) as f:
-           # print f.read()
-            return f.read()
+        return f.read()
 
 if __name__ == '__main__':
-    gui.callbacks['search_btn_click'] = search_btn_clicked
-    gui.callbacks['save_btn_click'] = save_btn_clicked
-    gui.callbacks['on_lst_item_select'] = search_item_select
-    gui.callbacks['get_instructions'] = instructions
 
-    # gui.callbacks['file_selected'] = on_file_picked
+    bridge.callbacks[bridge.Callbacks.get_instructions] = instructions
+    bridge.callbacks[bridge.Callbacks.on_search_btn_click] = search_btn_clicked
+    bridge.callbacks[bridge.Callbacks.on_save_btn_click] = save_btn_clicked
+    bridge.callbacks[bridge.Callbacks.on_lst_item_select] = search_item_select
+
     MyApp().run()
